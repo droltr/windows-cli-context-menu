@@ -1,7 +1,5 @@
 # AI Tools Context Menu for Windows
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/droltr/windows-cli-context-menu/test.yml?label=tests)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/droltr/windows-cli-context-menu/lint.yml?label=lint)
 ![GitHub license](https://img.shields.io/github/license/droltr/windows-cli-context-menu)
 
 A PowerShell-based utility that adds AI CLI tools (Claude, Gemini, GitHub Copilot, Git, etc.) to the Windows Explorer context menu for quick and easy access.
