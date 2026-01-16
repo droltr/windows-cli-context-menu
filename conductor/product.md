@@ -9,7 +9,7 @@ To provide a seamless and extensible way for Windows users, especially developer
 
 ## Core Features
 - **Context-Aware Launch:** Open AI tools in the correct directory context from folder backgrounds, folder icons, or drive roots.
-- **Extensible Architecture:** Easily add new tools via a configuration array in the installation script.
+- **Extensible Architecture:** Plugin-based system where new tools are added by simply creating a folder in `tools/` with a configuration file.
 - **Automated Setup:** Simple installation and uninstallation via PowerShell and Batch scripts.
 - **Visual Integration:** Support for custom icons to make the menu visually distinct.
 
