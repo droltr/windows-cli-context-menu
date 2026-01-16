@@ -3,6 +3,6 @@
     Command = "pwsh"
     ShellCommand = "pwsh.exe"
     Arguments = "-NoExit -Command `"Set-Location -Path '%V'`""
-    Icon = "pwsh.exe,0"
+    Icon = "icon.ico"
     Description = "Open PowerShell 7 here"
 }
