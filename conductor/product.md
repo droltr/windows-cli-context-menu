@@ -11,7 +11,8 @@ To provide a seamless and extensible way for Windows users, especially developer
 - **Context-Aware Launch:** Open AI tools in the correct directory context from folder backgrounds, folder icons, or drive roots.
 - **Extensible Architecture:** Plugin-based system where new tools are added by simply creating a folder in `tools/` with a configuration file.
 - **Automated Setup:** Simple installation and uninstallation via PowerShell and Batch scripts.
-- **Visual Integration:** Support for custom icons to make the menu visually distinct.
+- **Visual Integration:** Support for high-quality, full-color brand icons using PNG-in-ICO encoding.
+- **Automated Asset Management:** Automatic download and conversion of tool logos during setup.
 
 ## Target Audience
 - **Developers:** Who need quick access to AI coding assistants in specific project directories.

@@ -104,7 +104,7 @@ function Get-ToolPlugins {
         if (Test-Path $configFile) {
             try {
                 # Safe load of hashtable
-                $config = Invoke-Expression (Get-Content -Raw $configFile)
+                $config = Import-PowerShellDataFile -Path $configFile
                 
                 # Resolve Icon Path
                 if ($config.Icon) {
@@ -129,6 +129,13 @@ function Get-ToolPlugins {
         }
     }
     return $plugins
+}
+
+function Get-PreferredPowerShell {
+    if (Get-Command "pwsh" -ErrorAction SilentlyContinue) {
+        return "pwsh"
+    }
+    return "powershell.exe"
 }
 
 function Add-ContextMenuItem {
@@ -159,7 +166,13 @@ function Add-ContextMenuItem {
     $ok = New-RegistryKeySafe -Path $commandKeyPath -Force
     if (-not $ok) { return $false }
 
-    $fullCommand = "`"$($Tool.ShellCommand)`" $($Tool.Arguments)"
+    # Resolve Shell Command (Auto-detect if configured as 'powershell.exe')
+    $shellCmd = $Tool.ShellCommand
+    if ($shellCmd -eq "powershell.exe") {
+        $shellCmd = Get-PreferredPowerShell
+    }
+
+    $fullCommand = "`"$shellCmd`" $($Tool.Arguments)"
     Set-RegistryValueSafe -Path $commandKeyPath -Name "(Default)" -Value $fullCommand | Out-Null
     
     return $true

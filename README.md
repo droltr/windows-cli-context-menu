@@ -70,3 +70,7 @@ Ensure your icon paths are correct in `tool.conf.ps1`. If missing, a default sys
 ## License
 
 MIT License.
+
+## Credits
+
+- Icons provided by [walkxcode/dashboard-icons](https://github.com/walkxcode/dashboard-icons) and [Simple Icons](https://simpleicons.org/).

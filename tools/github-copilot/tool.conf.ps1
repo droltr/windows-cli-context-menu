@@ -1,8 +1,8 @@
 @{
     Name = "GitHub Copilot"
-    Command = "gh"
+    Command = "copilot"
     ShellCommand = "powershell.exe"
-    Arguments = "-NoExit -Command `"Set-Location -Path '%V'; gh copilot explain`""
-    Icon = "icon.png" 
+    Arguments = "-NoExit -Command `"Set-Location -Path '%V'; copilot explain`""
+    Icon = "icon.ico" 
     Description = "Open GitHub Copilot in PowerShell"
 }
