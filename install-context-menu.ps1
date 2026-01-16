@@ -98,19 +98,32 @@ function Get-ToolPlugins {
         return $plugins
     }
 
+    $rootIconsDir = Join-Path $scriptDir "icons"
+
     $toolFolders = Get-ChildItem -Path $toolsDir -Directory
     foreach ($folder in $toolFolders) {
         $configFile = Join-Path $folder.FullName "tool.conf.ps1"
         if (Test-Path $configFile) {
             try {
-                # Safe load of hashtable
-                $config = Import-PowerShellDataFile -Path $configFile
+                # Safe load of hashtable with fallback for older PS versions
+                $config = $null
+                if (Get-Command Import-PowerShellDataFile -ErrorAction SilentlyContinue) {
+                    $config = Import-PowerShellDataFile -Path $configFile
+                } else {
+                    # Fallback to Invoke-Expression for environments where Import-PowerShellDataFile is missing
+                    # Note: Using Get-Content -Raw to read the hashtable string
+                    $config = Invoke-Expression (Get-Content -Raw $configFile)
+                }
                 
                 # Resolve Icon Path
                 if ($config.Icon) {
-                    $iconPath = Join-Path $folder.FullName $config.Icon
-                    if (Test-Path $iconPath) {
-                        $config.Icon = $iconPath
+                    $localIconPath = Join-Path $folder.FullName $config.Icon
+                    $centralizedIconPath = Join-Path $rootIconsDir $config.Icon
+                    
+                    if (Test-Path $localIconPath) {
+                        $config.Icon = $localIconPath
+                    } elseif (Test-Path $centralizedIconPath) {
+                        $config.Icon = $centralizedIconPath
                     } else {
                         # Check if it looks like a system icon (dll,index)
                         if ($config.Icon -notmatch ",") {

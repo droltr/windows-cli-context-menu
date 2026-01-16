@@ -16,6 +16,32 @@ A PowerShell-based utility that adds AI CLI tools (Claude, Gemini, GitHub Copilo
 - 🎨 **High-Quality Icons**: Support for full-color brand icons using your own PNG files.
 - ⚡ **Automatic Setup**: Managed via `Menu.bat`
 
+## How it Works (Step-by-Step)
+
+The tool follows a modular and secure process to integrate AI tools into your system:
+
+### 1. Project Management via `Menu.bat`
+`Menu.bat` serves as the central control panel. It checks for administrative privileges and provides a user-friendly interface to install, uninstall, or check the status of your tools.
+
+### 2. Secure Plugin Discovery
+The installation script (`install-context-menu.ps1`) automatically scans the `tools/` directory. Each subfolder is treated as a standalone plugin.
+- **Security:** It uses `Import-PowerShellDataFile` instead of `Invoke-Expression` to safely parse configuration files without executing arbitrary code.
+- **Metadata:** It reads `tool.conf.ps1` to determine the tool name, command, and visual settings.
+
+### 3. High-Quality Icon Engine
+Windows Context Menus require `.ico` files for perfect rendering. The system includes a custom `IconConverter.ps1`:
+- **Conversion:** It takes your manually provided `icon.png` and wraps it in a 32-bit PNG-encoded ICO container.
+- **Centralization:** Converted icons are stored in a root-level `icons/` folder, ensuring reliable and fast loading by the Windows Shell.
+- **Fidelity:** This ensures that colors, transparency, and high resolutions are preserved perfectly, avoiding the low-quality artifacts common in standard conversions.
+
+### 4. Dynamic Shell Detection
+When you launch a tool, the system automatically detects the best environment:
+- **Default Shell:** It prioritizes **PowerShell 7 (`pwsh`)** if installed, otherwise falling back to standard Windows PowerShell.
+- **Context-Aware:** It automatically injects the path of the folder you right-clicked into the terminal using the `%V` variable.
+
+### 5. Registry Integration
+The final step registers the configuration in the Windows Registry (`HKEY_CLASSES_ROOT`). It sets up the main "AI Tools" group and populates it with your configured plugins, ensuring absolute paths are used for icons and executables to prevent broken links.
+
 ## Supported Tools
 
 - **Claude CLI**

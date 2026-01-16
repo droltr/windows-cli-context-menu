@@ -3,6 +3,6 @@
     Command = "copilot"
     ShellCommand = "powershell.exe"
     Arguments = "-NoExit -Command `"Set-Location -Path '%V'; copilot`""
-    Icon = "githubcopilot.png" 
+    Icon = "githubcopilot.ico" 
     Description = "Open GitHub Copilot in PowerShell"
 }
