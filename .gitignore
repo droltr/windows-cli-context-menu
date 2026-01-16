@@ -4,7 +4,13 @@
 *.ps1.swo
 *.ps1~
 
-# Icons (downloaded logos)
+# Legacy / Development Artifacts
+.deleted/
+conductor/
+tests/
+.github/
+
+# Icons (downloaded logos) - Ignore only if not in tools/
 icons/*.ico
 icons/*.png
 icons/*.svg
