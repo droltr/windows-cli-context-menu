@@ -7,6 +7,7 @@
 .DESCRIPTION
     This script adds a context menu structure to Windows Explorer.
     It dynamically loads tool configurations from the 'tools/' directory.
+    It also cleans up legacy "CLI Tools" menu entries.
 #>
 
 param (
@@ -52,12 +53,35 @@ function Set-RegistryValueSafe {
         [string]$PropertyType = "String"
     )
     try {
-        Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type $PropertyType -ErrorAction Stop
+        # Ensure value is treated as string for paths
+        $val = "$Value"
+        Set-ItemProperty -Path $Path -Name $Name -Value $val -Type $PropertyType -ErrorAction Stop
         return $true
     }
     catch {
         Write-ColorOutput "  [Error] Setting '$Name' in '$Path': $_" "Red"
         return $false
+    }
+}
+
+function Remove-LegacyMenu {
+    Write-ColorOutput "Checking for legacy menus..." "Gray"
+    $legacyPaths = @(
+        "Registry::HKEY_CURRENT_USER\Software\Classes\Directory\Background\shell\CLITools",
+        "Registry::HKEY_CURRENT_USER\Software\Classes\Directory\shell\CLITools",
+        "Registry::HKEY_CLASSES_ROOT\Directory\Background\shell\CLITools",
+        "Registry::HKEY_CLASSES_ROOT\Directory\shell\CLITools"
+    )
+
+    foreach ($path in $legacyPaths) {
+        if (Test-Path $path) {
+            try {
+                Remove-Item -Path $path -Recurse -Force -ErrorAction Stop
+                Write-ColorOutput "  Removed legacy key: $path" "Green"
+            } catch {
+                Write-ColorOutput "  [Warning] Failed to remove legacy key '$path': $_" "Yellow"
+            }
+        }
     }
 }
 
@@ -90,7 +114,9 @@ function Get-ToolPlugins {
                     } else {
                         # Check if it looks like a system icon (dll,index)
                         if ($config.Icon -notmatch ",") {
-                            $config.Icon = "powershell.exe,0" # Fallback
+                            # If local file missing, fallback to shell32 generic
+                            $config.Icon = "shell32.dll,29" # Generic shortcut icon
+                            Write-ColorOutput "  [Info] Icon file missing for $($config.Name), using default." "DarkGray"
                         }
                     }
                 }
@@ -174,6 +200,10 @@ Write-ColorOutput "`n=== AI Context Menu Manager ===" "Cyan"
 
 if ($Uninstall) {
     Write-ColorOutput "Uninstalling..." "Yellow"
+    
+    # Remove Legacy
+    Remove-LegacyMenu
+
     foreach ($pathType in $registryPaths.Keys) {
         $basePath = $registryPaths[$pathType]
         if (Remove-ContextMenuItem -BasePath $basePath) {
@@ -189,6 +219,9 @@ Write-ColorOutput "Scanning for tools in '$toolsDir'..." "Gray"
 $plugins = Get-ToolPlugins
 Write-ColorOutput "Found $($plugins.Count) tools." "Green"
 
+# Remove Legacy first to clean up
+Remove-LegacyMenu
+
 foreach ($pathType in $registryPaths.Keys) {
     $basePath = $registryPaths[$pathType]
     Write-ColorOutput "`nProcessing: $pathType" "Green"
@@ -197,7 +230,11 @@ foreach ($pathType in $registryPaths.Keys) {
     New-RegistryKeySafe -Path $aiMenuPath -Force | Out-Null
     Set-RegistryValueSafe -Path $aiMenuPath -Name "MUIVerb" -Value "AI Tools" | Out-Null
     Set-RegistryValueSafe -Path $aiMenuPath -Name "SubCommands" -Value "" | Out-Null
-    Set-RegistryValueSafe -Path $aiMenuPath -Name "Icon" -Value "shell32.dll,23" | Out-Null
+    
+    # Using a standard system icon for the main menu if 23 is weird
+    # shell32.dll,305 is often a 'Launch' or 'App' icon. Let's stick to 23 (Help/Question) if intended,
+    # or use imageres.dll,104 (Process). Let's try shell32.dll,43 (Star/Favorites)
+    Set-RegistryValueSafe -Path $aiMenuPath -Name "Icon" -Value "shell32.dll,43" | Out-Null
 
     $shellPath = "$aiMenuPath\shell"
     New-RegistryKeySafe -Path $shellPath -Force | Out-Null
