@@ -75,4 +75,6 @@ MIT License.
 
 ## Credits
 
-- Icons provided by [walkxcode/dashboard-icons](https://github.com/walkxcode/dashboard-icons) and [Simple Icons](https://simpleicons.org/).
+
+
+- Icons sourced and inspired by [Simple Icons](https://simpleicons.org/) (Licensed under CC0 1.0 Universal).
