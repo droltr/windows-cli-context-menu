@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - **High-Quality Icon Engine**: Introduced `IconConverter.ps1` which preserves full color depth and transparency by using PNG-in-ICO encoding.
 - **Automated Asset Management**: `Menu.bat` now automatically downloads and converts missing icons during installation.
 - **Improved Plugin System**: Centralized all AI tools into the `tools/` directory with a standardized configuration format.
-- **Security Hardening**: Replaced `Invoke-Expression` with `Import-PowerShellDataFile` to prevent script injection vulnerabilities.
+- **Security Hardening**: Replaced `Invoke-Expression` with `Import-PowerShellDataFile` and implemented `-LiteralPath` with escaped quoting for directory placeholders to prevent RCE and injection vulnerabilities.
 - **Dynamic Shell Detection**: Automatically detects and uses PowerShell 7 (`pwsh`) if available, falling back to `powershell.exe`.
 
 ### Changed
