@@ -2,84 +2,107 @@
 
 <#
 .SYNOPSIS
-    Installs AI tools context menu entries for Windows Explorer.
+    Installs AI tools context menu entries for Windows Explorer using a plugin system.
 
 .DESCRIPTION
-    This script adds a context menu structure to Windows Explorer that provides
-    quick access to AI CLI tools. Currently supports Claude CLI.
-
-    The menu appears when right-clicking on:
-    - Folder backgrounds (inside a folder)
-    - Folders themselves (in Explorer or Desktop)
-
-.NOTES
-    - Requires Administrator privileges
-    - Modifies Windows Registry
-    - Can be easily extended with additional AI tools
+    This script adds a context menu structure to Windows Explorer.
+    It dynamically loads tool configurations from the 'tools/' directory.
 #>
 
-# Detect Claude logo path (supports multiple formats)
+param (
+    [switch]$Uninstall
+)
+
+$ErrorActionPreference = "Stop"
 $scriptDir = $PSScriptRoot
-$claudeIconPath = $null
+$toolsDir = Join-Path $scriptDir "tools"
 
-# Check for logo files in order of preference
-$possibleIcons = @(
-    (Join-Path $scriptDir "icons\claude.ico"),
-    (Join-Path $scriptDir "icons\claude.png"),
-    (Join-Path $scriptDir "icons\claude-color.png"),
-    (Join-Path $scriptDir "icons\claude.svg")
-)
-
-foreach ($iconPath in $possibleIcons) {
-    if (Test-Path $iconPath) {
-        $claudeIconPath = $iconPath
-        break
-    }
-}
-
-# Fallback to PowerShell icon if no Claude logo found
-if (-not $claudeIconPath) {
-    $claudeIconPath = "powershell.exe,0"
-    Write-Host "Note: Claude logo not found in icons\ directory. Using default icon." -ForegroundColor Yellow
-    Write-Host "Run .\download-claude-logo.ps1 to download the Claude logo." -ForegroundColor Yellow
-    Write-Host ""
-}
-
-# Configuration: Define AI tools to add to context menu
-$aiTools = @(
-    @{
-        Name = "Claude CLI"
-        Command = "powershell.exe"
-        Arguments = "-NoExit -Command `"Set-Location -Path '%V'; claude`""
-        Icon = $claudeIconPath
-        Description = "Open Claude AI in PowerShell"
-    }
-    # Add more AI tools here following the same structure:
-    # @{
-    #     Name = "Another AI Tool"
-    #     Command = "cmd.exe"
-    #     Arguments = "/k cd /d `"%V`" && your-command"
-    #     Icon = "cmd.exe,0"
-    #     Description = "Description of the tool"
-    # }
-)
-
-# Registry paths for context menu integration
-$registryPaths = @{
-    # Right-click on folder background (inside folder)
-    FolderBackground = "Registry::HKEY_CLASSES_ROOT\Directory\Background\shell"
-    # Right-click on folder itself
-    Folder = "Registry::HKEY_CLASSES_ROOT\Directory\shell"
-    # Right-click on drive
-    Drive = "Registry::HKEY_CLASSES_ROOT\Drive\shell"
-}
+# --- Helper Functions ---
 
 function Write-ColorOutput {
-    param(
-        [string]$Message,
-        [string]$Color = "White"
-    )
+    param([string]$Message, [string]$Color = "White")
     Write-Host $Message -ForegroundColor $Color
+}
+
+function Test-RegistryKey {
+    param([string]$Path)
+    return (Test-Path -Path $Path)
+}
+
+function New-RegistryKeySafe {
+    param([string]$Path, [switch]$Force)
+    try {
+        if (-not (Test-RegistryKey $Path)) {
+            New-Item -Path $Path -Force:$Force -ErrorAction Stop | Out-Null
+            return $true
+        }
+        return $true # Exists
+    }
+    catch {
+        Write-ColorOutput "  [Error] Creating key '$Path': $_" "Red"
+        return $false
+    }
+}
+
+function Set-RegistryValueSafe {
+    param(
+        [string]$Path,
+        [string]$Name,
+        [string]$Value,
+        [string]$PropertyType = "String"
+    )
+    try {
+        Set-ItemProperty -Path $Path -Name $Name -Value $Value -Type $PropertyType -ErrorAction Stop
+        return $true
+    }
+    catch {
+        Write-ColorOutput "  [Error] Setting '$Name' in '$Path': $_" "Red"
+        return $false
+    }
+}
+
+function Test-CommandAvailability {
+    param([string]$CommandName)
+    if (-not $CommandName) { return $true } # Skip if no command to check
+    return (Get-Command $CommandName -ErrorAction SilentlyContinue)
+}
+
+function Get-ToolPlugins {
+    $plugins = @()
+    if (-not (Test-Path $toolsDir)) {
+        Write-ColorOutput "Tools directory not found at $toolsDir" "Red"
+        return $plugins
+    }
+
+    $toolFolders = Get-ChildItem -Path $toolsDir -Directory
+    foreach ($folder in $toolFolders) {
+        $configFile = Join-Path $folder.FullName "tool.conf.ps1"
+        if (Test-Path $configFile) {
+            try {
+                # Safe load of hashtable
+                $config = Invoke-Expression (Get-Content -Raw $configFile)
+                
+                # Resolve Icon Path
+                if ($config.Icon) {
+                    $iconPath = Join-Path $folder.FullName $config.Icon
+                    if (Test-Path $iconPath) {
+                        $config.Icon = $iconPath
+                    } else {
+                        # Check if it looks like a system icon (dll,index)
+                        if ($config.Icon -notmatch ",") {
+                            $config.Icon = "powershell.exe,0" # Fallback
+                        }
+                    }
+                }
+                
+                $plugins += $config
+            }
+            catch {
+                Write-ColorOutput "  [Warning] Failed to load config for $($folder.Name): $_" "Yellow"
+            }
+        }
+    }
+    return $plugins
 }
 
 function Add-ContextMenuItem {
@@ -92,106 +115,97 @@ function Add-ContextMenuItem {
     $menuKeyPath = "$BasePath\AI_Menu\shell\$safeName"
     $commandKeyPath = "$menuKeyPath\command"
 
-    try {
-        # Create the menu item key
-        if (-not (Test-Path $menuKeyPath)) {
-            New-Item -Path $menuKeyPath -Force | Out-Null
+    # Verify command availability
+    if ($Tool.Command) {
+        if (-not (Test-CommandAvailability $Tool.Command)) {
+            Write-ColorOutput "  [Warning] Tool '$($Tool.Command)' not found in PATH. Entry will be created but might not work." "Yellow"
         }
-
-        # Set display name
-        Set-ItemProperty -Path $menuKeyPath -Name "(Default)" -Value $Tool.Name
-
-        # Set icon if provided
-        if ($Tool.Icon) {
-            Set-ItemProperty -Path $menuKeyPath -Name "Icon" -Value $Tool.Icon
-        }
-
-        # Create command subkey
-        if (-not (Test-Path $commandKeyPath)) {
-            New-Item -Path $commandKeyPath -Force | Out-Null
-        }
-
-        # Set the command to execute
-        $fullCommand = "`"$($Tool.Command)`" $($Tool.Arguments)"
-        Set-ItemProperty -Path $commandKeyPath -Name "(Default)" -Value $fullCommand
-
-        return $true
     }
-    catch {
-        Write-ColorOutput "  Error adding $($Tool.Name): $_" "Red"
-        return $false
+
+    $ok = New-RegistryKeySafe -Path $menuKeyPath -Force
+    if (-not $ok) { return $false }
+
+    $ok = Set-RegistryValueSafe -Path $menuKeyPath -Name "(Default)" -Value $Tool.Name
+    if ($Tool.Icon) {
+        Set-RegistryValueSafe -Path $menuKeyPath -Name "Icon" -Value $Tool.Icon | Out-Null
     }
+
+    $ok = New-RegistryKeySafe -Path $commandKeyPath -Force
+    if (-not $ok) { return $false }
+
+    $fullCommand = "`"$($Tool.ShellCommand)`" $($Tool.Arguments)"
+    Set-RegistryValueSafe -Path $commandKeyPath -Name "(Default)" -Value $fullCommand | Out-Null
+    
+    return $true
 }
 
-function Initialize-AIContextMenu {
-    Write-ColorOutput "`n=== AI Context Menu Installer ===" "Cyan"
-    Write-ColorOutput "This will add AI tools to your Windows context menu.`n" "Yellow"
-
-    $successCount = 0
-    $failCount = 0
-
-    foreach ($pathType in $registryPaths.Keys) {
-        $basePath = $registryPaths[$pathType]
-        Write-ColorOutput "Processing: $pathType" "Green"
-
-        # Create main AI menu container
-        $aiMenuPath = "$basePath\AI_Menu"
-
+function Remove-ContextMenuItem {
+    param([string]$BasePath)
+    $aiMenuPath = "$BasePath\AI_Menu"
+    if (Test-RegistryKey $aiMenuPath) {
         try {
-            # Create the main AI menu key
-            if (-not (Test-Path $aiMenuPath)) {
-                New-Item -Path $aiMenuPath -Force | Out-Null
-            }
-
-            # Set the display name for the main menu
-            Set-ItemProperty -Path $aiMenuPath -Name "MUIVerb" -Value "AI Tools"
-            Set-ItemProperty -Path $aiMenuPath -Name "SubCommands" -Value ""
-
-            # Set icon for main menu (using a brain/AI-like icon from shell32)
-            Set-ItemProperty -Path $aiMenuPath -Name "Icon" -Value "shell32.dll,23"
-
-            # Create shell subkey for submenu items
-            $shellPath = "$aiMenuPath\shell"
-            if (-not (Test-Path $shellPath)) {
-                New-Item -Path $shellPath -Force | Out-Null
-            }
-
-            # Add each AI tool
-            foreach ($tool in $aiTools) {
-                Write-ColorOutput "  Adding: $($tool.Name)" "Gray"
-                if (Add-ContextMenuItem -BasePath $basePath -Tool $tool) {
-                    $successCount++
-                } else {
-                    $failCount++
-                }
-            }
+            Remove-Item -Path $aiMenuPath -Recurse -Force -ErrorAction Stop
+            return $true
+        } catch {
+            Write-ColorOutput "  [Error] Removing key '$aiMenuPath': $_" "Red"
+            return $false
         }
-        catch {
-            Write-ColorOutput "  Error creating AI menu for $pathType`: $_" "Red"
-            $failCount += $aiTools.Count
-        }
-
-        Write-Host ""
     }
-
-    # Summary
-    Write-ColorOutput "=== Installation Complete ===" "Cyan"
-    Write-ColorOutput "Successfully added: $successCount items" "Green"
-    if ($failCount -gt 0) {
-        Write-ColorOutput "Failed: $failCount items" "Red"
-    }
-    Write-ColorOutput "`nThe AI Tools menu should now appear in your context menu." "Yellow"
-    Write-ColorOutput "Right-click on a folder or inside a folder to see it.`n" "Yellow"
+    return $true
 }
 
-# Check for admin privileges
-$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+# --- Main Execution ---
 
+# Registry paths
+$registryPaths = @{
+    FolderBackground = "Registry::HKEY_CLASSES_ROOT\Directory\Background\shell"
+    Folder           = "Registry::HKEY_CLASSES_ROOT\Directory\shell"
+    Drive            = "Registry::HKEY_CLASSES_ROOT\Drive\shell"
+}
+
+# Admin Check
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
-    Write-ColorOutput "ERROR: This script requires Administrator privileges!" "Red"
-    Write-ColorOutput "Please run PowerShell as Administrator and try again." "Yellow"
+    Write-ColorOutput "ERROR: Run as Administrator required." "Red"
     exit 1
 }
 
-# Run the installation
-Initialize-AIContextMenu
+Write-ColorOutput "`n=== AI Context Menu Manager ===" "Cyan"
+
+if ($Uninstall) {
+    Write-ColorOutput "Uninstalling..." "Yellow"
+    foreach ($pathType in $registryPaths.Keys) {
+        $basePath = $registryPaths[$pathType]
+        if (Remove-ContextMenuItem -BasePath $basePath) {
+            Write-ColorOutput "  Removed from $pathType" "Green"
+        }
+    }
+    Write-ColorOutput "Uninstallation Complete.`n" "Cyan"
+    exit 0
+}
+
+# Install Mode
+Write-ColorOutput "Scanning for tools in '$toolsDir'..." "Gray"
+$plugins = Get-ToolPlugins
+Write-ColorOutput "Found $($plugins.Count) tools." "Green"
+
+foreach ($pathType in $registryPaths.Keys) {
+    $basePath = $registryPaths[$pathType]
+    Write-ColorOutput "`nProcessing: $pathType" "Green"
+
+    $aiMenuPath = "$basePath\AI_Menu"
+    New-RegistryKeySafe -Path $aiMenuPath -Force | Out-Null
+    Set-RegistryValueSafe -Path $aiMenuPath -Name "MUIVerb" -Value "AI Tools" | Out-Null
+    Set-RegistryValueSafe -Path $aiMenuPath -Name "SubCommands" -Value "" | Out-Null
+    Set-RegistryValueSafe -Path $aiMenuPath -Name "Icon" -Value "shell32.dll,23" | Out-Null
+
+    $shellPath = "$aiMenuPath\shell"
+    New-RegistryKeySafe -Path $shellPath -Force | Out-Null
+
+    foreach ($tool in $plugins) {
+        Write-ColorOutput "  Adding: $($tool.Name)" "Gray"
+        Add-ContextMenuItem -BasePath $basePath -Tool $tool | Out-Null
+    }
+}
+
+Write-ColorOutput "`nInstallation Complete!" "Cyan"
