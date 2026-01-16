@@ -9,6 +9,7 @@
 conductor/
 tests/
 .github/
+.gemini-clipboard/
 
 # Icons (downloaded logos) - Ignore only if not in tools/
 icons/*.ico
