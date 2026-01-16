@@ -104,13 +104,11 @@ function Get-ToolPlugins {
         $configFile = Join-Path $folder.FullName "tool.conf.ps1"
         if (Test-Path $configFile) {
             try {
-                # Safe load of hashtable with fallback for older PS versions
-                $config = $null
-                if (Get-Command Import-PowerShellDataFile -ErrorAction SilentlyContinue) {
-                    $config = Import-PowerShellDataFile -Path $configFile
-                } else {
-                    # Fallback to Invoke-Expression for environments where Import-PowerShellDataFile is missing
-                    $config = Invoke-Expression (Get-Content -Raw $configFile)
+                # Safe load of hashtable. Requires PowerShell 5.1+
+                $config = Import-PowerShellDataFile -Path $configFile
+                
+                if (-not $config) {
+                    throw "Configuration file is empty or invalid."
                 }
                 
                 # Resolve Icon Path
@@ -217,6 +215,13 @@ $registryPaths = @{
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-ColorOutput "ERROR: Run as Administrator required." "Red"
+    exit 1
+}
+
+# Version Check
+if (-not (Get-Command Import-PowerShellDataFile -ErrorAction SilentlyContinue)) {
+    Write-ColorOutput "ERROR: This script requires PowerShell 5.1 or later." "Red"
+    Write-ColorOutput "The 'Import-PowerShellDataFile' cmdlet is missing. Please upgrade PowerShell." "Yellow"
     exit 1
 }
 
