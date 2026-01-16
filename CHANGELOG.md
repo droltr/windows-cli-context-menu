@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed color distortion in context menu icons.
 - Fixed GitHub Copilot command to use the standalone `copilot` CLI.
+- Fixed `tool.conf.ps1` syntax to be compatible with strict `Import-PowerShellDataFile` parsing.
 
 ---
 
