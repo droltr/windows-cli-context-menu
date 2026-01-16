@@ -1,0 +1,26 @@
+=== Claude CLI Kurulum ve Test Raporu ===
+Tarih: 2025-12-22 17:49:43
+
+--- Ön Gereksinim Kontrolü ---
+Node.js: v25.2.1 - KURULU
+NPM: v11.7.0 - KURULU
+
+--- Claude CLI Kurulum Denemesi ---
+Kurulum çıktısı:
+npm notice Access token expired or revoked. Please try logging in again.
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/@anthropic-ai%2fclaude-cli - Not found
+npm error 404
+npm error 404  The requested resource '@anthropic-ai/claude-cli@*' could not be found or you do not have permission to access it.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\Admin\AppData\Local\npm-cache\_logs\2025-12-22T14_49_44_099Z-debug-0.log
+
+DURUM: BAŞARILI - 2.0.75 (Claude Code)
+
+--- API Key Kontrolü ---
+API Key: TANIMLI DEĞİL (kurulum talimatlarına bakın)
+
+=== SONUÇ ===
+Claude CLI kurulum kontrolü tamamlandı.

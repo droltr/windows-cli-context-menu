@@ -1,0 +1,20 @@
+# Repository Information
+
+## Description
+Add your favorite CLI tools (PowerShell, GitHub Copilot, Claude, Git) to Windows 11 right-click context menu. Simple, safe, and easy to use with an interactive menu manager.
+
+## Topics
+windows
+windows-11
+cli
+context-menu
+powershell
+right-click-menu
+github-copilot
+claude-ai
+git
+automation
+productivity
+windows-tools
+menu-manager
+registry
