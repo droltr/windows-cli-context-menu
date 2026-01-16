@@ -1,0 +1,42 @@
+# PowerShell
+*.ps1.log
+*.ps1.swp
+*.ps1.swo
+*.ps1~
+
+# Icons (downloaded logos)
+icons/*.ico
+icons/*.png
+icons/*.svg
+icons/*.jpg
+!icons/.gitkeep
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+*.code-workspace
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db

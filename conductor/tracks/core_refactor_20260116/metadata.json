@@ -1,0 +1,8 @@
+{
+  "track_id": "core_refactor_20260116",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-01-16T07:24:00Z",
+  "updated_at": "2026-01-16T07:24:00Z",
+  "description": "Refactor core installation logic for improved robustness and add support for a new AI CLI tool (e.g., GitHub Copilot CLI)"
+}
