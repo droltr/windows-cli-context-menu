@@ -24,22 +24,19 @@ Feature suggestions are welcome! Please create an issue describing:
 
 To add support for a new AI tool:
 
-1. **Test locally first**:
-   - Edit `install-context-menu.ps1`
-   - Add your tool to the `$aiTools` array
-   - Run the install script
-   - Verify it works as expected
+1. **Create a Plugin Folder**:
+   - Create a folder in `tools/` (e.g., `tools/my-new-tool/`).
+   - Create a `tool.conf.ps1` following the existing examples.
+   - Add an icon file if available.
 
-2. **Update documentation**:
-   - Add an example to README.md
-   - Document any prerequisites
-   - Include usage instructions
+2. **Test locally**:
+   - Run `Menu.bat` and select **Check Tools** to verify your tool is detected.
+   - Run **Reinstall Menu** and verify the context menu entry works.
 
 3. **Submit a pull request**:
-   - Fork the repository
-   - Make your changes
-   - Test thoroughly
-   - Submit PR with clear description
+   - Include your new plugin folder.
+   - Update README if necessary.
+   - Submit PR with a clear description.
 
 ### Code Style Guidelines
 

@@ -11,4 +11,4 @@
 
 ## Tools & Utilities
 - **Git:** For version control and managing the repository.
-- **Claude CLI / gh copilot:** Example target AI tools that the utility integrates into the shell.
+- **Claude CLI / Gemini CLI / gh copilot:** Example target AI tools that the utility integrates into the shell.
