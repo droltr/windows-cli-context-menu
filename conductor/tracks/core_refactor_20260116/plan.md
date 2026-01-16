@@ -2,7 +2,7 @@
 
 ## Phase 1: Analysis & Design
 - [x] Task: Analyze existing `install-context-menu.ps1` for error handling gaps. [99ec0e7]
-- [ ] Task: Design the modular function structure for registry operations (Safe-Create, Safe-Delete).
+- [x] Task: Design the modular function structure for registry operations (Safe-Create, Safe-Delete). [cd48118]
 - [ ] Task: Conductor - User Manual Verification 'Analysis & Design' (Protocol in workflow.md)
 
 ## Phase 2: Refactoring Core Logic
