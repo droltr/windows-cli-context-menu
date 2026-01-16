@@ -5,7 +5,7 @@
 - [x] Task: Design the modular function structure and plugin system. [7be92dc]
 - [x] Task: Conductor - User Manual Verification 'Analysis & Design' (Protocol in workflow.md) [Manual Confirm]
 
-## Phase 2: Restructuring & Cleanup
+## Phase 2: Restructuring & Cleanup [checkpoint: d1ef066]
 - [x] Task: Create `tools/` directory structure for all tools (claude, gemini, copilot, git, powershell).
 - [x] Task: Move/Create config and icons for **Claude**.
 - [x] Task: Move/Create config and icons for **GitHub Copilot**.
