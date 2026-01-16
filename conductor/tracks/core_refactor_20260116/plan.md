@@ -15,14 +15,13 @@
 - [ ] Task: Conductor - User Manual Verification 'Restructuring & Cleanup' (Protocol in workflow.md)
 
 ## Phase 3: Core Implementation
-- [ ] Task: Implement `Test-RegistryKey`, `New-RegistryKeySafe`, `Set-RegistryValueSafe`.
-- [ ] Task: Implement `Get-ToolPlugins` to scan `tools/` and load configs.
-- [ ] Task: Rewrite `install-context-menu.ps1` (or `Setup-Manager.ps1`) to use the new plugin system.
-- [ ] Task: Update `Menu.bat` to point to the new script and logic.
+- [x] Task: Implement `Test-RegistryKey`, `New-RegistryKeySafe`, `Set-RegistryValueSafe`.
+- [x] Task: Implement `Get-ToolPlugins` to scan `tools/` and load configs.
+- [x] Task: Rewrite `install-context-menu.ps1` (or `Setup-Manager.ps1`) to use the new plugin system.
+- [x] Task: Update `Menu.bat` to point to the new script and logic.
 - [ ] Task: Conductor - User Manual Verification 'Core Implementation' (Protocol in workflow.md)
 
-## Phase 4: Verification
-- [ ] Task: Test installation of all 5 tools via `Menu.bat`.
-- [ ] Task: Verify registry keys are correct.
-- [ ] Task: Verify icons appear correctly.
-- [ ] Task: Conductor - User Manual Verification 'Verification' (Protocol in workflow.md)
+## Phase 4: Verification & Polish [checkpoint: 08a1768]
+- [x] Task: Update `install-context-menu.ps1` to remove legacy "CLI Tools" registry keys.
+- [x] Task: Debug icon paths - ensure absolute paths are written to registry and valid.
+- [x] Task: Conductor - User Manual Verification 'Verification & Polish' (Protocol in workflow.md)
