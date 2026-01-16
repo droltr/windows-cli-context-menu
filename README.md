@@ -13,7 +13,7 @@ A PowerShell-based utility that adds AI CLI tools (Claude, Gemini, GitHub Copilo
 - 🎯 **Quick Access**: Launch AI tools directly from Windows Explorer
 - 📁 **Multiple Contexts**: Works on folders, inside folders, and drives
 - 🔧 **Modular Plugin System**: Easily add more AI tools by creating a folder in `tools/`
-- 🎨 **Clean Interface**: Organized submenu structure
+- 🎨 **High-Quality Icons**: Support for full-color brand icons using your own PNG files.
 - ⚡ **Automatic Setup**: Managed via `Menu.bat`
 
 ## Supported Tools
