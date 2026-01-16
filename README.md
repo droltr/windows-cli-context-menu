@@ -99,8 +99,11 @@ Ensure your icon paths are correct in `tool.conf.ps1`. If missing, a default sys
 
 MIT License.
 
-## Credits
+## Credits & Acknowledgments
 
+We would like to express our gratitude to the following projects for providing high-quality assets that make this tool visually consistent and professional:
 
+- **[Simple Icons](https://simpleicons.org/)**: For providing beautiful, open-source brand logos. Licensed under [CC0 1.0 Universal](https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md).
+- **[Icons-for-free](https://icons-for-free.com/)**: For hosting a vast library of versatile icons, including our PowerShell assets.
 
-- Icons sourced and inspired by [Simple Icons](https://simpleicons.org/) (Licensed under CC0 1.0 Universal).
+All tool logos are trademarks of their respective owners. This project is committed to license compliance and proper attribution for all open-source assets used.
