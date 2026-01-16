@@ -11,4 +11,5 @@
 
 ## Tools & Utilities
 - **Git:** For version control and managing the repository.
+- **GitHub Actions:** For Continuous Integration (CI) including automated testing (Pester) and linting (PSScriptAnalyzer).
 - **Claude CLI / Gemini CLI / gh copilot:** Example target AI tools that the utility integrates into the shell.
