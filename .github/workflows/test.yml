@@ -1,0 +1,20 @@
+name: Tests
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+
+jobs:
+  test:
+    name: Run Pester Tests
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Pester Tests
+      shell: powershell
+      run: |
+        Invoke-Pester tests/InstallScript.Tests.ps1 -PassThru
