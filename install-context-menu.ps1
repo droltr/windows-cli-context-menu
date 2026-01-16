@@ -17,6 +17,7 @@ param (
 $ErrorActionPreference = "Stop"
 $scriptDir = $PSScriptRoot
 $toolsDir = Join-Path $scriptDir "tools"
+$rootIconsDir = Join-Path $scriptDir "icons"
 
 # --- Helper Functions ---
 
@@ -98,8 +99,6 @@ function Get-ToolPlugins {
         return $plugins
     }
 
-    $rootIconsDir = Join-Path $scriptDir "icons"
-
     $toolFolders = Get-ChildItem -Path $toolsDir -Directory
     foreach ($folder in $toolFolders) {
         $configFile = Join-Path $folder.FullName "tool.conf.ps1"
@@ -111,7 +110,6 @@ function Get-ToolPlugins {
                     $config = Import-PowerShellDataFile -Path $configFile
                 } else {
                     # Fallback to Invoke-Expression for environments where Import-PowerShellDataFile is missing
-                    # Note: Using Get-Content -Raw to read the hashtable string
                     $config = Invoke-Expression (Get-Content -Raw $configFile)
                 }
                 
@@ -257,10 +255,13 @@ foreach ($pathType in $registryPaths.Keys) {
     Set-RegistryValueSafe -Path $aiMenuPath -Name "MUIVerb" -Value "AI Tools" | Out-Null
     Set-RegistryValueSafe -Path $aiMenuPath -Name "SubCommands" -Value "" | Out-Null
     
-    # Using a standard system icon for the main menu if 23 is weird
-    # shell32.dll,305 is often a 'Launch' or 'App' icon. Let's stick to 23 (Help/Question) if intended,
-    # or use imageres.dll,104 (Process). Let's try shell32.dll,43 (Star/Favorites)
-    Set-RegistryValueSafe -Path $aiMenuPath -Name "Icon" -Value "shell32.dll,43" | Out-Null
+    # Using the custom main_ai.ico if it exists, otherwise falling back to Star
+    $mainIconPath = Join-Path $rootIconsDir "main_ai.ico"
+    if (Test-Path $mainIconPath) {
+        Set-RegistryValueSafe -Path $aiMenuPath -Name "Icon" -Value $mainIconPath | Out-Null
+    } else {
+        Set-RegistryValueSafe -Path $aiMenuPath -Name "Icon" -Value "shell32.dll,43" | Out-Null
+    }
 
     $shellPath = "$aiMenuPath\shell"
     New-RegistryKeySafe -Path $shellPath -Force | Out-Null
